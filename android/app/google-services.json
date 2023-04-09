@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "401508023931",
+    "project_id": "geofriends-c5fd9",
+    "storage_bucket": "geofriends-c5fd9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401508023931:android:f5f02ad90c97b2fd2a2cde",
+        "android_client_info": {
+          "package_name": "com.example.somt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "401508023931-5mk5aqgmj6l382f7okoq9k8kmhd9184c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3WNgsWyjqplTgffopwAjMyY1JSsz66mU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401508023931-5mk5aqgmj6l382f7okoq9k8kmhd9184c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "401508023931-faack89l4uut1a0fc8he83a3o4s3escp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.somt"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
