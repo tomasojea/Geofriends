@@ -124,7 +124,7 @@ class Algo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'd',
+      title: 'Geofriends',
       home: FavoriteWidget(),
     );
   }
