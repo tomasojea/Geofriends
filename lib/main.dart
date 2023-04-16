@@ -15,14 +15,14 @@ Future<void> main() async {
   runApp(const Algo());
 }
 
-class FavoriteWidget extends StatefulWidget {
-  const FavoriteWidget({super.key});
+class LocalizationWidget extends StatefulWidget {
+  const LocalizationWidget({super.key});
 
   @override
-  State<FavoriteWidget> createState() => _FavoriteWidgetState();
+  State<LocalizationWidget> createState() => _LocalizationWidget();
 }
 
-class _FavoriteWidgetState extends State<FavoriteWidget> {
+class _LocalizationWidget extends State<LocalizationWidget> {
   latLng.LatLng _center = latLng.LatLng(0, 0);
   latLng.LatLng _markerLoc = latLng.LatLng(0, 0);
 
@@ -60,14 +60,12 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
       _markerLoc = latLng.LatLng(_position.latitude, _position.longitude);
       _center = latLng.LatLng(_position.latitude, _position.longitude);
     });
-
-    print("_center-onStartLocation");
-    print(_center);
   }
 
-  void somthingelse() async {
+  /* void updateStartingLocalization() async {
+    print("updateStartingLocalization()");
     Position _position = await _determinePosition();
-  }
+  } */
 
   final mapController = MapController();
 
@@ -83,14 +81,15 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
   @override
   Widget build(BuildContext context) {
     print("Widget");
-    somthingelse();
+
+    //updateStartingLocalization();
     onStartLocation();
 
     return Scaffold(
       body: Stack(
         children: [
           FlutterMap(
-            options: MapOptions(center: latLng.LatLng(0, 0)),
+            options: MapOptions(center: latLng.LatLng(0, 0), maxZoom: 19),
             mapController: mapController,
             children: [
               TileLayer(
@@ -125,7 +124,7 @@ class Algo extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Geofriends',
-      home: FavoriteWidget(),
+      home: LocalizationWidget(),
     );
   }
 }
