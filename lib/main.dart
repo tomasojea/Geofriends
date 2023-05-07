@@ -5,6 +5,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:somt/firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,8 @@ class _LocalizationWidget extends State<LocalizationWidget> {
     });
   }
 
+  final FirestoreService firestoreservice = new FirestoreService();
+
   @override
   Widget build(BuildContext context) {
     print("Widget");
@@ -86,10 +89,13 @@ class _LocalizationWidget extends State<LocalizationWidget> {
     onStartLocation();
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Geofriends"),
+      ),
       body: Stack(
         children: [
           FlutterMap(
-            options: MapOptions(center: latLng.LatLng(0, 0), maxZoom: 19),
+            options: MapOptions(center: latLng.LatLng(0, 0)),
             mapController: mapController,
             children: [
               TileLayer(
@@ -112,6 +118,19 @@ class _LocalizationWidget extends State<LocalizationWidget> {
         ],
       ),
     );
+  }
+}
+
+class FirestoreService {
+  final CollectionReference locationsCollection =
+      FirebaseFirestore.instance.collection('locations');
+
+  Future<void> saveLocation(Position position) {
+    return locationsCollection.doc().set({
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }
 
