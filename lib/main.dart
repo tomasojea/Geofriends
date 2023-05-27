@@ -79,11 +79,29 @@ class _LocalizationWidget extends State<LocalizationWidget> {
     });
   }
 
-  final FirestoreService firestoreservice = new FirestoreService();
-
   @override
   Widget build(BuildContext context) {
     print("Widget");
+    GeoPoint geopoint = GeoPoint(_markerLoc.latitude, _markerLoc.longitude);
+
+    final setLocation = FirebaseFirestore.instance
+        .collection('localisations')
+        .doc("location")
+        .set({
+      'location': geopoint,
+    });
+    final getLocation = FirebaseFirestore.instance
+        .collection('localisations')
+        .doc("location")
+        .get();
+
+    getLocation.then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        print(data["geolocalisation"].latitude);
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
 
     //updateStartingLocalization();
     onStartLocation();
@@ -92,45 +110,28 @@ class _LocalizationWidget extends State<LocalizationWidget> {
       appBar: AppBar(
         title: Text("Geofriends"),
       ),
-      body: Stack(
+      body: Center(
+          child: FlutterMap(
+        options: MapOptions(center: latLng.LatLng(0, 0)),
+        mapController: mapController,
         children: [
-          FlutterMap(
-            options: MapOptions(center: latLng.LatLng(0, 0)),
-            mapController: mapController,
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
-              ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: latLng.LatLng(
-                        _markerLoc.latitude, _markerLoc.longitude),
-                    width: 80,
-                    height: 80,
-                    builder: (context) => FlutterLogo(),
-                  ),
-                ],
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            subdomains: ['a', 'b', 'c'],
+          ),
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: latLng.LatLng(geopoint.latitude, geopoint.longitude),
+                width: 80,
+                height: 80,
+                builder: (context) => FlutterLogo(),
               ),
             ],
-          )
+          ),
         ],
-      ),
+      )),
     );
-  }
-}
-
-class FirestoreService {
-  final CollectionReference locationsCollection =
-      FirebaseFirestore.instance.collection('locations');
-
-  Future<void> saveLocation(Position position) {
-    return locationsCollection.doc().set({
-      'latitude': position.latitude,
-      'longitude': position.longitude,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
   }
 }
 
