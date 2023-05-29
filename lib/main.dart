@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_map/flutter_map.dart'; // Suitable for most situations
 import 'package:flutter_map/plugin_api.dart';
-import 'package:latlong2/latlong.dart' as latLng;
+import 'package:latlong2/latlong.dart' as lat_lng;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:somt/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,8 +24,8 @@ class LocalizationWidget extends StatefulWidget {
 }
 
 class _LocalizationWidget extends State<LocalizationWidget> {
-  latLng.LatLng _center = latLng.LatLng(0, 0);
-  latLng.LatLng _markerLoc = latLng.LatLng(0, 0);
+  lat_lng.LatLng _center = lat_lng.LatLng(0, 0);
+  lat_lng.LatLng _markerLoc = lat_lng.LatLng(0, 0);
 
   Future<Position> _determinePosition() async {
     bool serviceEnabled;
@@ -55,18 +55,13 @@ class _LocalizationWidget extends State<LocalizationWidget> {
 
   void onStartLocation() async {
     print("onStartLocation()");
-    Position _position = await _determinePosition();
-    //_center = latLng.LatLng(_position.latitude, _position.longitude);
+    Position position = await _determinePosition();
+    //_center = lat_lng.LatLng(position.latitude, position.longitude);
     setState(() {
-      _markerLoc = latLng.LatLng(_position.latitude, _position.longitude);
-      _center = latLng.LatLng(_position.latitude, _position.longitude);
+      _markerLoc = lat_lng.LatLng(position.latitude, position.longitude);
+      _center = lat_lng.LatLng(position.latitude, position.longitude);
     });
   }
-
-  /* void updateStartingLocalization() async {
-    print("updateStartingLocalization()");
-    Position _position = await _determinePosition();
-  } */
 
   final mapController = MapController();
 
@@ -74,16 +69,16 @@ class _LocalizationWidget extends State<LocalizationWidget> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Position _position = await _determinePosition();
+      Position position = await _determinePosition();
       mapController.move(_center, 15);
     });
+    onStartLocation();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("Widget");
     GeoPoint geopoint = GeoPoint(_markerLoc.latitude, _markerLoc.longitude);
-
+    List<Marker> allMarkers = <Marker>[];
     final setLocation = FirebaseFirestore.instance
         .collection('localisations')
         .doc("location")
@@ -94,17 +89,24 @@ class _LocalizationWidget extends State<LocalizationWidget> {
         .collection('localisations')
         .doc("location")
         .get();
-
+// loop the result and add the values to the Markers list.
     getLocation.then(
       (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
-        print(data["geolocalisation"].latitude);
+        data.forEach((key, value) {
+          allMarkers.add(Marker(
+            // Adapt below for multi geolocation points
+            point: lat_lng.LatLng(value.latitude, value.longitude),
+            width: 80,
+            height: 80,
+            builder: (context) => FlutterLogo(),
+          ));
+        });
       },
       onError: (e) => print("Error getting document: $e"),
     );
 
     //updateStartingLocalization();
-    onStartLocation();
 
     return Scaffold(
       appBar: AppBar(
@@ -112,23 +114,14 @@ class _LocalizationWidget extends State<LocalizationWidget> {
       ),
       body: Center(
           child: FlutterMap(
-        options: MapOptions(center: latLng.LatLng(0, 0)),
+        options: MapOptions(center: lat_lng.LatLng(0, 0)),
         mapController: mapController,
         children: [
           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             subdomains: ['a', 'b', 'c'],
           ),
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: latLng.LatLng(geopoint.latitude, geopoint.longitude),
-                width: 80,
-                height: 80,
-                builder: (context) => FlutterLogo(),
-              ),
-            ],
-          ),
+          MarkerLayer(markers: allMarkers),
         ],
       )),
     );
